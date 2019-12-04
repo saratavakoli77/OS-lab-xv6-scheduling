@@ -671,3 +671,56 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+void
+print_information(void)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  cprintf("name\tpid\tstate\t\tqueue\tpriority\ttickets\tcycles\tHRRN\t\n");
+  cprintf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    cprintf("%s", p->name);
+   	cprintf("\t%d", p->pid);
+   	switch(p->state){
+  	case UNUSED:
+  		cprintf("\t%s", "UNUSED  ");
+  		break;
+  	case EMBRYO:
+  		cprintf("\t%s", "EMBRYO  ");
+  		break;
+  	case SLEEPING:
+  		cprintf("\t%s", "SLEEPING");
+  		break;
+  	case RUNNABLE:
+  		cprintf("\t%s", "RUNNABLE");
+  		break;
+  	case RUNNING:
+  		cprintf("\t%s", "RUNNING ");
+  		break;
+  	case ZOMBIE:
+  		cprintf("\t%s", "ZOMBIE  ");
+  		break;
+  	}
+    cprintf("\t%d", p->level);
+    cprintf("\t%f", p->priority);
+    cprintf("\t%d", p->tickets);
+    cprintf("\t%d", p->cycleNum);
+    cprintf("\t%f\n", calculateHRRN(&p));
+  }
+  release(&ptable.lock);
+}
+
+void
+set_tickets(int pid, int tickets)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->pid == pid) {
+      p->tickets = tickets;
+      break;
+    }
+  }
+  release(&ptable.lock);
+}

@@ -89,3 +89,36 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_print_information(void)
+{
+  print_information();
+  return 1;
+}
+
+int
+sys_set_priority(void)
+{
+
+}
+
+int
+sys_set_tickets(void)
+{
+  int tickets, pid;
+
+  if(argint(0, &tickets) < 0)
+    return -1;
+  
+  if(argint(0, &pid) < 0)
+    return -1;
+
+  return (pid);
+}
+
+int
+sys_change_queue(void)
+{
+
+}
