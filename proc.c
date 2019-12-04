@@ -7,6 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 
+void ftoa(float n, char* res, int afterpoint);
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -677,11 +678,13 @@ print_information(void)
 {
   struct proc *p;
   acquire(&ptable.lock);
-  cprintf("name\tpid\tstate\t\tqueue\tpriority\ttickets\tcycles\tHRRN\t\n");
+  cprintf("name\t\tpid\tstate\t\tqueue\t\tpriority\ttickets\tcycles\tHRRN\t\n");
   cprintf("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n");
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state == UNUSED)
+      continue;
     cprintf("%s", p->name);
-   	cprintf("\t%d", p->pid);
+   	cprintf("\t\t%d", p->pid);
    	switch(p->state){
   	case UNUSED:
   		cprintf("\t%s", "UNUSED  ");
@@ -702,11 +705,25 @@ print_information(void)
   		cprintf("\t%s", "ZOMBIE  ");
   		break;
   	}
-    cprintf("\t%d", p->level);
-    cprintf("\t%f", p->priority);
+    switch(p->level){
+  	case LOTTERY:
+      cprintf("\t%s", "[1]LOTTERY");
+  		break;
+  	case HRRN:
+      cprintf("\t%s", "[2]HRRN");
+  		break;
+  	case SRPF:
+      cprintf("\t%s", "[3]SRPF");
+  		break;
+  	}
+    
+    char buf[64];
+    ftoa(p->priority, buf, 1);
+    cprintf("\t\t%s", buf);
     cprintf("\t%d", p->tickets);
     cprintf("\t%d", p->cycleNum);
-    cprintf("\t%f\n", calculateHRRN(&p));
+    ftoa(calculateHRRN(p), buf, 3);
+    cprintf("\t%s\n", buf);
   }
   release(&ptable.lock);
 }
@@ -714,6 +731,7 @@ print_information(void)
 void
 set_tickets(int pid, int tickets)
 {
+  cprintf("in set_tickets: pid = %d tickets= %d", pid, tickets);
   struct proc *p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -724,3 +742,89 @@ set_tickets(int pid, int tickets)
   }
   release(&ptable.lock);
 }
+
+void
+set_priority(int pid, float priority)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->pid == pid) {
+      p->priority = priority;
+      break;
+    }
+  }
+  release(&ptable.lock);
+}
+
+void
+change_queue(int pid, int level)
+{
+  enum Levels l = LOTTERY;
+  switch(level){
+  	case 1:
+      l = LOTTERY;
+  		break;
+  	case 2:
+      l = HRRN;
+  		break;
+  	case 3:
+      l = SRPF;
+  		break;
+  	}
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->pid == pid) {
+      p->level = l;
+      break;
+    }
+  }
+  release(&ptable.lock);
+}
+
+
+void reverse(char* str, int len) 
+{ 
+    int i = 0, j = len - 1, temp; 
+    while (i < j) { 
+        temp = str[i]; 
+        str[i] = str[j]; 
+        str[j] = temp; 
+        i++; 
+        j--; 
+    } 
+} 
+  
+int intToStr(int x, char str[], int d) 
+{ 
+    int i = 0; 
+    while (x) { 
+        str[i++] = (x % 10) + '0'; 
+        x = x / 10; 
+    } 
+  
+    while (i < d) 
+        str[i++] = '0'; 
+  
+    reverse(str, i); 
+    str[i] = '\0'; 
+    return i; 
+} 
+  
+void ftoa(float n, char* res, int afterpoint) 
+{ 
+    int ipart = (int)n;  
+    float fpart = n - (float)ipart; 
+    int i = intToStr(ipart, res, 0); 
+    if (afterpoint != 0) { 
+        res[i] = '.';
+        int pow = 1;
+        for (int i = 0; i < afterpoint; i++) {
+          pow *= 10;
+        }
+        fpart = fpart * pow;
+  
+        intToStr((int)fpart, res + i + 1, afterpoint); 
+    } 
+} 

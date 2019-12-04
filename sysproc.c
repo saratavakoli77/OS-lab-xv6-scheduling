@@ -100,7 +100,7 @@ sys_print_information(void)
 int
 sys_set_priority(void)
 {
-
+  return 0; //todo
 }
 
 int
@@ -108,17 +108,27 @@ sys_set_tickets(void)
 {
   int tickets, pid;
 
-  if(argint(0, &tickets) < 0)
-    return -1;
-  
   if(argint(0, &pid) < 0)
     return -1;
+  
+  if(argint(1, &tickets) < 0)
+    return -1;
 
+  set_tickets(pid, tickets);
   return (pid);
 }
 
 int
 sys_change_queue(void)
 {
+  int level, pid;
 
+  if(argint(0, &pid) < 0)
+    return -1;
+  
+  if(argint(1, &level) < 0)
+    return -1;
+
+  change_queue(pid, level);
+  return (pid);
 }

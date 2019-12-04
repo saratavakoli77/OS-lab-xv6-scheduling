@@ -40,7 +40,7 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
-enum levels { LOTTERY, HRRN, SRPF };
+enum Levels { LOTTERY, HRRN, SRPF };
 
 // Per-process state
 struct proc {
@@ -57,7 +57,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  enum levels level;
+  enum Levels level;
   float priority;
   //struct ticket *tickets;
   int tickets;
