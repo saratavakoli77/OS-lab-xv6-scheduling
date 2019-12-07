@@ -114,11 +114,8 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->level = LOTTERY;
-  //p->tickets->start = getTotal();
   int rnd;
   while ((rnd = generate_random(60)) == 0);
-  
-  //p->tickets->end = p->tickets->start + rnd - 1;
   p->tickets = rnd;
   p->cycleNum = 1;
   p->entryTime = ticks;
@@ -731,7 +728,6 @@ print_information(void)
 void
 set_tickets(int pid, int tickets)
 {
-  cprintf("in set_tickets: pid = %d tickets= %d", pid, tickets);
   struct proc *p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -745,7 +741,7 @@ set_tickets(int pid, int tickets)
 
 void
 set_priority(int pid, float priority)
-{
+{ 
   struct proc *p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){

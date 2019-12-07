@@ -32,12 +32,6 @@ struct context {
   uint eip;
 };
 
-// struct ticket {
-//   int start;
-//   int end;
-// };
-
-
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 enum Levels { LOTTERY, HRRN, SRPF };
@@ -59,7 +53,6 @@ struct proc {
   char name[16];               // Process name (debugging)
   enum Levels level;
   float priority;
-  //struct ticket *tickets;
   int tickets;
   int cycleNum;
   uint entryTime;

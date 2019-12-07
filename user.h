@@ -24,7 +24,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 void print_information(void);
-void set_priority(int, float);
+void set_priority(int, char*);
 void set_tickets(int, int);
 void change_queue(int, int);
 
